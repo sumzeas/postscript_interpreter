@@ -7,11 +7,18 @@ Lex.__index = Lex
 -- Creates a new lexer
 function Lex.new(input)
     return setmetatable({
-        input = input,
+        input = input or "",
         tokens = {}
     }, Lex)
 end
 
+-- Resets the lexer's input and tokens
+function Lex:reset()
+    self.input = ""
+    self.tokens = {}
+end
+
+-- Reads a string and handles escaped characters
 function Lex:read_string(input, start)
     local i = start + 1
     local depth = 1
