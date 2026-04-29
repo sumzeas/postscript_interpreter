@@ -83,6 +83,7 @@ function Exec:exec_keyword(kw)
     elseif kw == "false" then
         s:push(Token.new(T["keyword"], "false"))
 
+    -- stack operations
     elseif kw == "pop" then
         s:pop()
 
