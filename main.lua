@@ -1,12 +1,14 @@
-local Lex = require "lex"
-local Stack = require "stack"
+local Exec = require "modules.exec"
 
-local myLex = Lex.new([=[
-dict begin
+Exec.run_source([=[
+5 dict begin
     /x 10 def
     /y 20 def
+    x y add =
+    x y mul =
+    x y gt
+        { (x is greater) = }
+        { (y is greater or equal) = }
+        ifelse
 end
 ]=])
-
-myLex:read()
-print(myLex:display_tokens())
