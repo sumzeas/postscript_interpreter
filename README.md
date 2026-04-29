@@ -16,7 +16,7 @@ LuaUnit 3.5-1 - A unit testing framework for Lua
 ```
 
 ## Running Tests
-After ensuring all dependencies are installed, run a test as follows:
+After ensuring all dependencies are installed, run all tests as follow:
 ```
 ./tests/run.sh
 Testing parser...
@@ -34,5 +34,12 @@ OK
 Testing stack operations...
 ......
 Ran 6 tests in 0.001 seconds, 6 successes, 0 failures
+OK
+```
+Or run a singular test:
+```
+lua tests/test_parsing.lua
+...
+Ran 3 tests in 0.000 seconds, 3 successes, 0 failures
 OK
 ```
