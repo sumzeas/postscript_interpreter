@@ -34,6 +34,7 @@ return {
     ["lt"]              = "lt",
     ["and"]             = "and",
     ["or"]              = "or",
+    ["not"]             = "not",
     ["true"]            = "true",
     ["false"]           = "false",
     ["if"]              = "if",
