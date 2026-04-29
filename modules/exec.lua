@@ -6,12 +6,26 @@ local Parse = require "modules.parse"
 local Exec = {}
 Exec.__index = Exec
 
-function Exec.new(tokens)
+-- Creates a new executor
+function Exec.new(tokens, opts)
+    opts = opts or { static_scope = false }
     return setmetatable({
         tokens = tokens,
         operand_stack = Stack.new(),
         dict_stack = {{}},
+        static_scope = opts.static_scope or false,
     }, Exec)
+end
+
+-- Creates a new executor given postscript source code
+function Exec.fromSource(source, opts)
+    local lexer = Lex.new(source)
+    lexer:read()
+
+    local parser = Parse.new(lexer.tokens)
+    parser:read()
+
+    return Exec.new(parser.tokens, opts)
 end
 
 function Exec:lookup(name)
@@ -26,36 +40,70 @@ function Exec:define(name, value)
     self.dict_stack[#self.dict_stack][name] = value
 end
 
+--[[
+-- Returns a snapshot of the dictionary stack.
+-- 
+--]]
+function Exec:snapshot_dict_stack()
+    local snap = {}
+    for i, d in ipairs(self.dict_stack) do snap[i] = d end
+    return snap
+end
+
+-- Runs the executor
 function Exec:run()
     self:exec_tokens(self.tokens)
 end
 
-function Exec.run_source(source)
+-- Lexes, parses, and executes postscript source code
+function Exec.run_source(source, opts)
     local lexer = Lex.new(source)
     lexer:read()
 
     local parser = Parse.new(lexer.tokens)
     parser:read()
 
-    local executor = Exec.new(parser.tokens)
+    local executor = Exec.new(parser.tokens, opts)
     executor:run()
 end
 
+-- Executes an array of tokens
 function Exec:exec_tokens(tokens)
     for _, token in ipairs(tokens) do
         self:exec_token(token)
     end
 end
 
+--[[
+-- Executes a procedure and performs static scoping if the flag is provided
+-- Temporarily replaces the dictionary stack with the closure's scope to simulate static scoping
+--]]
+function Exec:exec_procedure(proc)
+    if proc.closure_scope then
+        local saved = self.dict_stack
+        self.dict_stack = proc.closure_scope
+        self:exec_tokens(proc.value)
+        self.dict_stack = saved
+    else
+        self:exec_tokens(proc.value)
+    end
+end
+
+-- Executes a singular token
 function Exec:exec_token(token)
     local T = Token.types
     local s = self.operand_stack
 
     if token.type == T["number"]
     or token.type == T["string"]
-    or token.type == T["procedure"]
     or token.type == T["array"]
     or token.type == T["slash"] then
+        s:push(token)
+
+    elseif token.type == T["procedure"] then
+        if self.static_scope and not token.closure_scope then
+            token.closure_scope = self:snapshot_dict_stack()
+        end
         s:push(token)
 
     elseif token.type == T["identifier"] then
@@ -64,7 +112,7 @@ function Exec:exec_token(token)
             error("Undefined name: " .. token.value)
         end
         if val.type == T["procedure"] then
-            self:exec_tokens(val.value)
+            self:exec_procedure(val)
         else
             s:push(val)
         end
@@ -74,6 +122,7 @@ function Exec:exec_token(token)
     end
 end
 
+-- Executes the operation associated with the provided keyword
 function Exec:exec_keyword(kw)
     local T = Token.types
     local s = self.operand_stack
