@@ -23,6 +23,10 @@ function mt:__tostring()
     return string.format("{type = %-15s, value = %-10s}", self.type, self.value)
 end
 
+function mt:__eq(other)
+    return self.type == other.type and self.value == other.value
+end
+
 function mt:assert_type(type)
     assert(self.type == type)
 end
