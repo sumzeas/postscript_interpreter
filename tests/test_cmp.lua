@@ -22,7 +22,7 @@ function TestCmp:execBoolean(lhs, rhs, op, expected)
         Token.new(Token.types["keyword"], op)
     }
     e:run()
-    LU.assertEquals(e.operand_stack:peek(), expected)
+    LU.assertEquals(e.operand_stack:peek().value, expected)
 end
 
 function TestCmp:runComparison(op, ...)
@@ -66,7 +66,7 @@ end
 
 function TestCmp:testGe()
     self:runComparison(
-        Keywords["gt"],
+        Keywords["ge"],
         {lhs = 1, rhs = 0, expected = "true"},
         {lhs = 0, rhs = 1, expected = "false"},
         {lhs = 1, rhs = 1, expected = "true"}
