@@ -244,7 +244,8 @@ function Exec:exec_keyword(kw)
         local a = s:pop()
         if a.type == T["string"] then
             s:push(Token.new(T["number"], #a.value))
-        elseif a.type == T["array"] or a.type == T["procedure"] then            s:push(Token.new(T["number"], #a.value))
+        elseif a.type == T["array"] or a.type == T["procedure"] then
+            s:push(Token.new(T["number"], #a.value))
         elseif a.type == T["dictionary"] then
             local count = 0
             for _ in pairs(a.value) do count = count + 1 end
