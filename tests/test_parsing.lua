@@ -1,6 +1,6 @@
-local LU = require "luaunit"
-local Lex = require "lex"
-local Token = require "token"
+local LU    = require "luaunit"
+local Lex   = require "modules.lex"
+local Token = require "modules.token"
 
 TestParse = {}
 
